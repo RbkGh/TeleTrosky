@@ -1,9 +1,13 @@
 package com.swiftpot.android.teletrosky;
 
+import android.content.BroadcastReceiver;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -17,6 +21,8 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.swiftpot.android.teletrosky.fragments.FragmentHome;
+import com.swiftpot.android.teletrosky.services.QuickStartPreferences;
 import com.swiftpot.android.teletrosky.services.RegistrationIntentService;
 
 public class HomeActivity extends AppCompatActivity
@@ -24,6 +30,8 @@ public class HomeActivity extends AppCompatActivity
 
     static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1001;
     int isAvailableCode ;
+    private boolean isReceiverRegistered;
+    private BroadcastReceiver mRegistrationBroadcastReceiver;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,6 +63,10 @@ public class HomeActivity extends AppCompatActivity
             Intent intent = new Intent(this, RegistrationIntentService.class);
             startService(intent);
         }
+
+        FragmentTransaction tx = getSupportFragmentManager().beginTransaction();
+        tx.add(R.id.content, new FragmentHome());
+        tx.commit();
     }
 
     @Override
@@ -88,7 +100,14 @@ public class HomeActivity extends AppCompatActivity
 
         return super.onOptionsItemSelected(item);
     }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //check again in OnResume
+        //checkGoogleServicesPresenceAndAct();
+        registerReceiver();
 
+    }
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -116,6 +135,14 @@ public class HomeActivity extends AppCompatActivity
 
 
 
+
+    private void registerReceiver(){
+        if(!isReceiverRegistered) {
+            LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
+                    new IntentFilter(QuickStartPreferences.REGISTRATION_COMPLETE));
+            isReceiverRegistered = true;
+        }
+    }
 
 
     /**

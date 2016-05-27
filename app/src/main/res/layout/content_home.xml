@@ -16,8 +16,8 @@
         <!--android:layout_width="wrap_content"-->
         <!--android:layout_height="wrap_content"-->
         <!--android:text="TeleTroTro" />-->
-    <RelativeLayout
-        android:id="@+id/relativeLayoutMinor"
+    <FrameLayout
+        android:id="@+id/content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_centerVertical="true"
@@ -26,42 +26,6 @@
         android:layout_alignParentRight="true"
         >
 
-        <ImageView
-            android:layout_width="96dp"
-            android:layout_height="96dp"
-            android:id="@+id/imageView2"
-            android:background="@mipmap/ic_location_heavyblack"
-            android:layout_centerVertical="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
 
-        <ImageButton
-            android:layout_width="288dp"
-            android:layout_height="192dp"
-            android:id="@+id/btnHomeNext"
-            android:background="@mipmap/ic_send_thin"
-            android:layout_centerVertical="true"
-            android:layout_toRightOf="@+id/imageView2"
-            android:layout_toEndOf="@+id/imageView2"
-            android:layout_marginLeft="125dp"
-            android:layout_marginStart="125dp" />
-
-        <EditText
-            android:layout_width="192dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/edtLocationName"
-            android:layout_alignBottom="@+id/btnHomeNext"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="Loading Location.Please Wait."
-            android:id="@+id/tvLocationLoading"
-            android:layout_above="@+id/edtLocationName"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
-    </RelativeLayout>
+    </FrameLayout>
 </RelativeLayout>
