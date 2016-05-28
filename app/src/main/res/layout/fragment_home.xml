@@ -20,6 +20,7 @@
             android:layout_width="96dp"
             android:layout_height="96dp"
             android:id="@+id/imageView2"
+            android:visibility="gone"
             android:background="@mipmap/ic_location_heavyblack"
             android:layout_centerVertical="true"
             android:layout_alignParentLeft="true"
@@ -36,10 +37,11 @@
             android:layout_marginLeft="125dp"
             android:layout_marginStart="125dp" />
 
-        <EditText
+        <AutoCompleteTextView
             android:layout_width="192dp"
             android:layout_height="wrap_content"
             android:id="@+id/edtLocationName"
+            android:hint="Enter Location To Go!!!"
             android:layout_alignBottom="@+id/btnHomeNext"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true" />
@@ -48,6 +50,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
+            android:visibility="gone"
             android:text="Loading Location.Please Wait."
             android:id="@+id/tvLocationLoading"
             android:layout_above="@+id/edtLocationName"

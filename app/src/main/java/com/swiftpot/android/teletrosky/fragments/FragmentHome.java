@@ -16,6 +16,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -60,9 +63,9 @@ public class FragmentHome extends Fragment implements
     protected Location mLastLocation;
 
     private TextView tvLocationLoading;
-    private EditText edtDestinationName;
+    private AutoCompleteTextView edtDestinationName;
     private ImageButton btnNext ;
-
+    private String[] areaNames = {"Okponglo","Oyibi","Odonna","Awoshie","Kaneshie"};
 
 
     //private OnFragmentInteractionListener mListener;
@@ -144,9 +147,48 @@ public class FragmentHome extends Fragment implements
         //buildGoogleApiClient();
 
         tvLocationLoading = (TextView)v.findViewById(R.id.tvLocationLoading);
-        edtDestinationName = (EditText)v.findViewById(R.id.edtLocationName);
-        btnNext = (ImageButton)v.findViewById(R.id.btnHomeNext);
+        edtDestinationName = (AutoCompleteTextView)v.findViewById(R.id.edtLocationName);
+        ArrayAdapter adapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1,areaNames);
 
+        edtDestinationName.setAdapter(adapter);
+        edtDestinationName.setThreshold(1);
+
+
+        edtDestinationName.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                tvLocationLoading.setVisibility(View.VISIBLE);
+                double cost = 33.2; String busStop = "4";
+                String dataLoc = "Cost="+cost+"Ghs\n"+busStop+" Bus Stops ";
+                String s = adapterView.getItemAtPosition(i).toString();
+                System.out.println("Vallue of item at position = "+s);
+                if (s.equalsIgnoreCase("Okponglo")){
+                    cost = 5.20;  busStop = "4";
+                    dataLoc = "Cost="+cost+"Ghs\n"+busStop+" Bus Stops ";
+                    tvLocationLoading.setText(dataLoc);
+                }else if((edtDestinationName.getText().toString().equals("Oyibi"))){
+                    cost = 3.20;  busStop = "2";
+                    dataLoc = "Cost="+cost+"Ghs\n"+busStop+" Bus Stops ";
+                    tvLocationLoading.setText(dataLoc);
+                }else if((edtDestinationName.getText().toString().equals("Odonna"))){
+                    cost = 5.70;  busStop = "2";
+                    dataLoc = "Cost="+cost+"Ghs\n"+busStop+" Bus Stops ";
+                    tvLocationLoading.setText(dataLoc);
+                }else{
+                    tvLocationLoading.setText(dataLoc);
+                }
+            }
+        });
+        btnNext = (ImageButton)v.findViewById(R.id.btnHomeNext);
+        btnNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String uriFormat = String.format(Locale.ENGLISH, "http://maps.google.com/maps?q=loc:%f,%f(TeleTrosky)", mLastLocation.getLatitude(), mLastLocation.getLongitude());
+                //String uri = String.format(Locale.ENGLISH, "geo:%f,%f", mLastLocation.getLatitude(), mLastLocation.getLongitude());
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uriFormat));
+                startActivity(intent);
+            }
+        });
 
         return v;
     }
@@ -174,6 +216,43 @@ public class FragmentHome extends Fragment implements
                 .addApi(LocationServices.API)
                 .build();
     }
+
+
+
+    @SuppressWarnings("MissingPermission")
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+// Provides a simple way of getting a device's location and is well suited for
+        // applications that do not require a fine-grained location and that do not need location
+        // updates. Gets the best and most recent location currently available, which may be null
+        // in rare cases when a location is not available.
+        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        if (mLastLocation != null) {
+
+            tvLocationLoading.setText(String.format(Locale.US,"%s: %f  %s: %f", "Lattitude",
+                    mLastLocation.getLatitude(),"Longitude",mLastLocation.getLongitude()));
+//            mLongitudeText.setText(String.format("%s: %f", mLongitudeLabel,
+//                    mLastLocation.getLongitude()));
+        } else {
+            Toast.makeText(getActivity(), "No Location Found!!", Toast.LENGTH_LONG).show();
+
+        }
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+// The connection to Google Play services was lost for some reason. We call connect() to
+        // attempt to re-establish the connection.
+        Log.i(TAG, "Connection suspended");
+        mGoogleApiClient.connect();
+    }
+
+
     /**
      * Check the device to make sure it has the Google Play Services APK. If
      * it doesn't, display a dialog that allows users to download the APK from
@@ -214,39 +293,5 @@ public class FragmentHome extends Fragment implements
         }
 
         return serviceStatus;
-    }
-
-
-    @SuppressWarnings("MissingPermission")
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-// Provides a simple way of getting a device's location and is well suited for
-        // applications that do not require a fine-grained location and that do not need location
-        // updates. Gets the best and most recent location currently available, which may be null
-        // in rare cases when a location is not available.
-        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        if (mLastLocation != null) {
-
-            tvLocationLoading.setText(String.format(Locale.US,"%s: %f  %s: %f", "Lattitude",
-                    mLastLocation.getLatitude(),"Longitude",mLastLocation.getLongitude()));
-//            mLongitudeText.setText(String.format("%s: %f", mLongitudeLabel,
-//                    mLastLocation.getLongitude()));
-        } else {
-            Toast.makeText(getActivity(), "No Location Found!!", Toast.LENGTH_LONG).show();
-
-        }
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-// The connection to Google Play services was lost for some reason. We call connect() to
-        // attempt to re-establish the connection.
-        Log.i(TAG, "Connection suspended");
-        mGoogleApiClient.connect();
     }
 }
