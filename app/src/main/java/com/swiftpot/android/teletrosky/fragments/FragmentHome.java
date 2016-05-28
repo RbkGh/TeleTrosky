@@ -12,6 +12,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +34,9 @@ import java.util.Locale;
 
 public class FragmentHome extends Fragment implements
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+
+    protected static final String TAG = "FragmentHome";
+
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -137,7 +141,7 @@ public class FragmentHome extends Fragment implements
             getActivity().startService(intent);
         }
 
-        buildGoogleApiClient();
+        //buildGoogleApiClient();
 
         tvLocationLoading = (TextView)v.findViewById(R.id.tvLocationLoading);
         edtDestinationName = (EditText)v.findViewById(R.id.edtLocationName);
@@ -147,6 +151,11 @@ public class FragmentHome extends Fragment implements
         return v;
     }
 
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        buildGoogleApiClient();
+    }
 
     private void registerReceiver(){
         if(!isReceiverRegistered) {
@@ -235,6 +244,9 @@ public class FragmentHome extends Fragment implements
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
+// The connection to Google Play services was lost for some reason. We call connect() to
+        // attempt to re-establish the connection.
+        Log.i(TAG, "Connection suspended");
+        mGoogleApiClient.connect();
     }
 }
