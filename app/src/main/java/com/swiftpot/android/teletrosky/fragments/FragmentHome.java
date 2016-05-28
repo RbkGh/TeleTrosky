@@ -4,23 +4,35 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.location.Location;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 import com.swiftpot.android.teletrosky.R;
 import com.swiftpot.android.teletrosky.services.QuickStartPreferences;
 import com.swiftpot.android.teletrosky.services.RegistrationIntentService;
 
+import java.util.Locale;
 
-public class FragmentHome extends Fragment {
+
+public class FragmentHome extends Fragment implements
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -30,10 +42,24 @@ public class FragmentHome extends Fragment {
     int isAvailableCode ;
     private boolean isReceiverRegistered;
 
+    /**
+     * Provides the entry point to Google Play services.
+     */
+    protected GoogleApiClient mGoogleApiClient;
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
     private BroadcastReceiver mRegistrationBroadcastReceiver;
+    /**
+     * Represents a geographical location.
+     */
+    protected Location mLastLocation;
+
+    private TextView tvLocationLoading;
+    private EditText edtDestinationName;
+    private ImageButton btnNext ;
+
+
 
     //private OnFragmentInteractionListener mListener;
 
@@ -71,6 +97,12 @@ public class FragmentHome extends Fragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        mGoogleApiClient.connect();
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
         //check again in OnResume
@@ -86,6 +118,14 @@ public class FragmentHome extends Fragment {
     }
 
     @Override
+    public void onStop() {
+        super.onStop();
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
+        }
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
@@ -96,6 +136,14 @@ public class FragmentHome extends Fragment {
             Intent intent = new Intent(getActivity(), RegistrationIntentService.class);
             getActivity().startService(intent);
         }
+
+        buildGoogleApiClient();
+
+        tvLocationLoading = (TextView)v.findViewById(R.id.tvLocationLoading);
+        edtDestinationName = (EditText)v.findViewById(R.id.edtLocationName);
+        btnNext = (ImageButton)v.findViewById(R.id.btnHomeNext);
+
+
         return v;
     }
 
@@ -106,6 +154,16 @@ public class FragmentHome extends Fragment {
                     new IntentFilter(QuickStartPreferences.REGISTRATION_COMPLETE));
             isReceiverRegistered = true;
         }
+    }
+    /**
+     * Builds a GoogleApiClient. Uses the addApi() method to request the LocationServices API.
+     */
+    protected synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
+                .addConnectionCallbacks(FragmentHome.this)
+                .addOnConnectionFailedListener(FragmentHome.this)
+                .addApi(LocationServices.API)
+                .build();
     }
     /**
      * Check the device to make sure it has the Google Play Services APK. If
@@ -150,4 +208,33 @@ public class FragmentHome extends Fragment {
     }
 
 
+    @SuppressWarnings("MissingPermission")
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+// Provides a simple way of getting a device's location and is well suited for
+        // applications that do not require a fine-grained location and that do not need location
+        // updates. Gets the best and most recent location currently available, which may be null
+        // in rare cases when a location is not available.
+        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        if (mLastLocation != null) {
+
+            tvLocationLoading.setText(String.format(Locale.US,"%s: %f  %s: %f", "Lattitude",
+                    mLastLocation.getLatitude(),"Longitude",mLastLocation.getLongitude()));
+//            mLongitudeText.setText(String.format("%s: %f", mLongitudeLabel,
+//                    mLastLocation.getLongitude()));
+        } else {
+            Toast.makeText(getActivity(), "No Location Found!!", Toast.LENGTH_LONG).show();
+
+        }
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
 }

@@ -28,10 +28,7 @@ import com.swiftpot.android.teletrosky.services.RegistrationIntentService;
 public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1001;
-    int isAvailableCode ;
-    private boolean isReceiverRegistered;
-    private BroadcastReceiver mRegistrationBroadcastReceiver;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
